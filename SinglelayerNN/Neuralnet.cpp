@@ -1,56 +1,69 @@
-#include <stdio.h>
+#include<stdio.h>
 #include<stdlib.h>
 #include<random>
 #include<assert.h>
 #include<iostream>
 #include<vector>
+#include<math.h>
 
 
 using std::vector;
 using std::cout;
 using std::endl;
 
+using namespace std;
+
  std::vector<float> sigmoid(const std::vector<float>& v1){
 
 
 	 long int vec_size = v1.size();
-	 std::vector<float> res[vec_size];
-
-	 for(int i=0;i<vec_size;i++){
-
-		 res[i]= 1/(1+(exp(-v1[i])));   // defines the sigmoid function
-	 }
-
-
-
-	 return 0;
-}
-
- std::vector<float> dot(const std::vector<float>& v1, const std::vector<float>& v2, const int v1_rows,
-		 const int v1_column, const int v2_rows, const int v2_column){                                // dot product of vectors
 	 std::vector<float> res;
 
-	 for(int i=0, k=0, j=0;i<v1_rows;++i){
+	 for(unsigned i=0;i<vec_size;i++){
 
-		 int row;
-
-		 for(j=0;j<v1_column;++j){
-
-			 int prod;
-			  for(k=0;k<v2_column;++k){
-
-				  prod= v1[i][j] * v2[j][k];
-
-			  }
-				  row = row+prod;
-		 }
-
-		 res[i][k]= row;
+		 res[i]= 1.0 / (1.0 + expf(-v1[i]));   // defines the sigmoid function
 	 }
 
 
 
 	 return res;
+}
+
+
+ std::vector <float> sigmoid_d (const std::vector <float>& m1) {
+
+
+     const unsigned long VECTOR_SIZE = m1.size();
+     std::vector <float> output (VECTOR_SIZE);
+
+
+     for( unsigned i = 0; i != VECTOR_SIZE; ++i ) {
+         output[ i ] = m1[ i ] * (1 - m1[ i ]);
+     }
+
+     return output;
+ }
+
+
+ std::vector <float> dot (const std::vector <float>& m1, const std::vector <float>& m2,
+                     const int m1_rows, const int m1_columns, const int m2_columns) {
+
+	 std::vector <float> output (m1_rows*m2_columns);
+
+     for( int row = 0; row != m1_rows; ++row ) {
+
+         for( int col = 0; col != m2_columns; ++col ) {
+
+             output[ row * m2_columns + col ] = 0.f;
+
+             for(int k = 0; k != m1_columns; ++k ) {
+
+                 output[ row * m2_columns + col ] += m1[ row * m1_columns + k ] * m2[ k * m2_columns + col ];
+             }
+         }
+     }
+
+     return output;
  }
 
  std::vector<float> operator-(const std::vector<float>& v1, const std::vector<float>& v2){
@@ -61,6 +74,7 @@ using std::endl;
 
 	 for(int i=0;i<vec_size;i++){
 		 res[i] = v1[i] - v2[i];
+
 	 }
 
 
@@ -70,7 +84,7 @@ using std::endl;
 
  std::vector<float> operator+(const std::vector<float>& v1, const std::vector<float>& v2){
 
-	 std::vector res;
+	 std::vector<float> res;
 
 
 	 long int vec_size = v1.size();
@@ -84,7 +98,7 @@ using std::endl;
 
  std::vector<float> operator*(const std::vector<float>& v1, const std::vector<float>& v2){
 
-	 std::vector res;
+	 std::vector<float> res;
 
 	 long int vec_size = v1.size();
 
@@ -94,6 +108,21 @@ using std::endl;
 
 	 return res;
 }
+
+
+ std::vector<float> transpose (float *m, const int C, const int R) {
+
+
+     std::vector<float> mT (C*R);
+
+     for(int n = 0; n!=C*R; n++) {
+         int i = n/C;
+         int j = n%C;
+         mT[n] = m[R*j + i];
+     }
+
+     return mT;
+ }
 
 
  void print ( const vector <float>& v1, int v1_rows, int v1_columns ) {
@@ -109,8 +138,10 @@ using std::endl;
  }
 
 
-int main(int argc, const char * argv[]){
+int main(){
 
+
+	printf("into main");
 
 	std::vector<float> X= {
 										// input matrix
@@ -138,6 +169,7 @@ int main(int argc, const char * argv[]){
 
 	};
 
+printf("into main 2");
 
 	std::vector<float> pred = {};
 	vector<float> pred_error;
@@ -148,21 +180,24 @@ int main(int argc, const char * argv[]){
 
 	for (unsigned i = 0; i != 50; ++i) {
 
-	         pred = sigmoid(dot(X, W, 4, 4, 4, 1 ) );
+	         pred = sigmoid(dot(X, W, 4, 4, 1 ) );
+
+	         printf("into main 3");
+
 	         pred_error = Y - pred;
-	         pred_delta = pred_error * sigmoid(pred);
-	         W_delta = dot(X, pred_delta, 4,4, 4, 1);
-	        W = W + W_delta;
+
+	         pred_delta = pred_error * sigmoid_d(pred);
+
+	         printf("into main 4");
+
+	         W_delta = dot(transpose(&X[0],4,4), pred_delta, 4,4, 1); // calculates the weight updates
+
+	         W = W + W_delta;
 
 	        if (i == 49){
 	            print ( pred, 4, 1 );
 	        };
 	    };
-
-			// overload addition , subtraction and multiplication operators in order to operate on the vectors.
-
-
-
 
 	return 0;
 }
