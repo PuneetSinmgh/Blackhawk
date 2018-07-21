@@ -1,0 +1,11 @@
+eclipse.preferences.version=1
+environment/project/cdt.managedbuild.config.gnu.exe.debug.2145321521/PATH/delimiter=\:
+environment/project/cdt.managedbuild.config.gnu.exe.debug.2145321521/PATH/operation=append
+environment/project/cdt.managedbuild.config.gnu.exe.debug.2145321521/PATH/value=/opt/rh/devtoolset-6/root/bin\:/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.161-0.b14.el7_4.x86_64/bin\:/usr/local/bin\:/usr/local/sbin\:/usr/bin\:/usr/sbin\:/bin\:/sbin\:/etc/hadoop/hadoop-3.0.1/bin\:/home/puneet/spark/spark-2.3.0-bin-hadoop2.7/bin\:/home/puneet/.local/bin\:/home/puneet/bin
+environment/project/cdt.managedbuild.config.gnu.exe.debug.2145321521/append=true
+environment/project/cdt.managedbuild.config.gnu.exe.debug.2145321521/appendContributed=true
+environment/project/cdt.managedbuild.config.gnu.exe.release.1201859759/PATH/delimiter=\:
+environment/project/cdt.managedbuild.config.gnu.exe.release.1201859759/PATH/operation=append
+environment/project/cdt.managedbuild.config.gnu.exe.release.1201859759/PATH/value=/opt/rh/devtoolset-6/root/bin\:/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.161-0.b14.el7_4.x86_64/bin\:/usr/local/bin\:/usr/local/sbin\:/usr/bin\:/usr/sbin\:/bin\:/sbin\:/etc/hadoop/hadoop-3.0.1/bin\:/home/puneet/spark/spark-2.3.0-bin-hadoop2.7/bin\:/home/puneet/.local/bin\:/home/puneet/bin
+environment/project/cdt.managedbuild.config.gnu.exe.release.1201859759/append=true
+environment/project/cdt.managedbuild.config.gnu.exe.release.1201859759/appendContributed=true

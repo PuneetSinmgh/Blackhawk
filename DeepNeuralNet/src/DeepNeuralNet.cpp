@@ -1,3 +1,12 @@
+//============================================================================
+// Name        : DeepNeuralNet.cpp
+// Author      : Puneet Singh
+// Version     :
+// Copyright   : Your copyright notice
+// Description : Hello World in C++, Ansi-style
+//============================================================================
+
+
 #include<stdio.h>
 #include<stdlib.h>
 #include<random>
@@ -5,7 +14,7 @@
 #include<iostream>
 #include<vector>
 #include<math.h>
-
+#include<string.h>
 
 using std::vector;
 using std::cout;
@@ -52,14 +61,11 @@ vector<float> W= {
 		 res[i]= 1.0 / (1.0 + expf(-v1[i]));   // defines the sigmoid function
 	 }
 
-
-
 	 return res;
 }
 
 
  std::vector <float> sigmoid_d (const std::vector <float>& m1) {
-
 
      const unsigned long VECTOR_SIZE = m1.size();
      std::vector <float> output (VECTOR_SIZE);
@@ -169,21 +175,80 @@ vector<float> W= {
  }
 
 
+ std::vector<float> getlabelVector(int n){
+
+	 std::vector<float> res = {0,0,0,0,0,0,0,0,0,0};
+
+	 switch(n){
+
+	 case 0:res[0]=0;
+		 break;
+	 case 1:res[1]= 1;
+		 break;
+
+	 case 2:res[2]=2;
+		 break;
+
+	 case 3:res[3]=3;
+
+
+
+
+	 }
+
+
+	 return res;
+ }
+
 int main(){
 
 
-	printf("into main");
-
-
-printf("into main 2");
-
-//	std::vector<float> pred = {};
-//	vector<float> pred_error;
-//	vector<float> pred_delta;
-//	vector<float> W_delta ;
-
-
 printf("into main 3");
+
+
+	FILE *fp;
+	char filename[] = "/home/puneet/Downloads/mnist_test_10.csv";
+//  int result = SUCCESS;
+	char buff[2000];
+	//int activation[1000];
+	unsigned i=0;
+	char * token;
+	int lab;
+
+	std::vector<float> activation(784);
+
+	if ( (fp = fopen(filename, "r") ) == NULL)
+	{
+		printf("Cannot open %s.\n", filename);
+  //  result = FAIL;
+	}
+	else
+	{
+		printf("File opened; ready to read.\n");
+
+    //printf("okk");
+		while(!feof(fp)){
+			i=0;
+    //	printf("okk");
+			if(fgets(buff, 2000 ,fp )!=NULL){
+
+				token = strtok(buff,",");
+				printf("%s\n",token);
+
+				lab = atoi(token);
+
+				while(token!=NULL){
+
+					token = strtok(NULL, ",");
+					activation[i]= atof(token); // can use atof to convert to float
+    					i++;
+				}
+				printf("value of i:%d\n",i);
+
+				}
+
+
+	std::vector<float> label = getlabelVector(lab);
 
 
 	for (unsigned i = 0; i != 50; ++i) {
@@ -206,6 +271,11 @@ printf("into main 3");
 	            print ( pred, 4, 1 );
 	        };
 	    };
+
+		}
+   }
+
+
 
 	return 0;
 }
