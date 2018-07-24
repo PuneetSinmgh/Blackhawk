@@ -15,6 +15,7 @@
 #include<vector>
 #include<math.h>
 #include<string.h>
+#include<fnmatch.h>
 
 using std::vector;
 using std::cout;
@@ -22,32 +23,44 @@ using std::endl;
 
 using namespace std;
 
-vector<float> X= {
-										// input matrix
-			5.1,3.1,1.4,0.2,
-			4.9,3.0,1.4,0.2,
-			6.2,3.4,5.4,2.3,
-			5.9,3.0,5.1,1.8
-	};
 
-vector<float> Y= {
-										// output results
-			0,
-			0,
-			1,
-			1,
+float get_random() {
+		return static_cast<float> (rand()) / static_cast<float> (RAND_MAX);
+	}
 
-	};
+	std::vector<float> init_weights(int rows, int cols) {
 
-vector<float> W= {
-										// random weights
-			0.5,
-			0.2,
-			0.8,
-			0.3,
+		std::vector<float> temp(rows*cols);
 
-	};
+		for (int i = 0; i < temp.size(); ++i) {
 
+				temp[i]=get_random();
+		}
+
+		return temp;
+	}
+
+		const float l2_rows = 15.0;
+		const float l2_cols = 784.0;
+		const float l3_rows = 10.0;
+		const float l3_cols = 15.0;
+
+		std::vector<float>  L2W;// Layer 2 Weights vector
+		std::vector<float> L3W;// Layer 3 Weights vector
+		std::vector<float> L2B;// Layer 2 Biad vector
+		std::vector<float> L3B;// Layer 3 Bias vector
+
+		std::vector<float> A2,A3;
+		std::vector<float> A1(784);
+
+		std::vector<float> z2,z3;
+
+		std::vector<float> d2,d3;
+
+		std::vector<float> L2nw(15*784,0.0);// Layer 2 Weights vector
+		std::vector<float> L3nw(10*15,0.0);// Layer 3 Weights vector
+		std::vector<float> L2nb(15*1,0.0);// Layer 2 Biad vector
+		std::vector<float> L3nb(10*1,0.0);// Layer 3 Bias vector
 
 
  std::vector<float> sigmoid(const std::vector<float>& v1){
@@ -179,26 +192,24 @@ vector<float> W= {
 
 	 std::vector<float> res = {0,0,0,0,0,0,0,0,0,0};
 
-	 switch(n){
-
-	 case 0:res[0]=0;
-		 break;
-	 case 1:res[1]= 1;
-		 break;
-
-	 case 2:res[2]=2;
-		 break;
-
-	 case 3:res[3]=3;
-
-
-
-
-	 }
-
+	 res[n]=1;
 
 	 return res;
  }
+
+ void update_wandb (vector <float> &a , vector <float> &b){
+
+	 float eta = 0.5;
+	 int mini_batch_size = 100;
+
+ 	//a = a - ((eta/mini_batch_size) * b);
+	 for (int i = 0 ; i < b.size();++i){
+ 		b[i] = (eta/mini_batch_size) * b[i];
+	 }
+
+	 a = a - b;
+
+ 	}
 
 int main(){
 
@@ -207,73 +218,137 @@ printf("into main 3");
 
 
 	FILE *fp;
-	char filename[] = "/home/puneet/Downloads/mnist_test_10.csv";
-//  int result = SUCCESS;
+	char filename1[] = "/home/puneet/Downloads/mnist_train_100.csv";
+	char filename2[] = "/home/puneet/Downloads/mnist_test_10.csv";
 	char buff[2000];
-	//int activation[1000];
+	float activation[785];
 	unsigned i=0;
 	char * token;
-	int lab;
+	int lab=0, batch_size=0;
+		L2W = init_weights(l2_rows, l2_cols);// initializing wieghts for layer 2
 
-	std::vector<float> activation(784);
+		L2B = init_weights( l2_cols,1); // initializing weights for layer 3
+		/*
+		 * Layer 3- 15 * 10 weights initialization vector
+		 * 			1 * 10 Bias vector
+		 */
+		L3W = init_weights(l3_rows, l3_cols);
+		//print_vectors(L3W);
+		L3B = init_weights(l3_cols,1);
+		//print_vectors(L3B);
 
-	if ( (fp = fopen(filename, "r") ) == NULL)
-	{
-		printf("Cannot open %s.\n", filename);
-  //  result = FAIL;
-	}
-	else
-	{
-		printf("File opened; ready to read.\n");
 
-    //printf("okk");
-		while(!feof(fp)){
-			i=0;
-    //	printf("okk");
-			if(fgets(buff, 2000 ,fp )!=NULL){
 
-				token = strtok(buff,",");
-				printf("%s\n",token);
+			if ( (fp = fopen(filename1, "r") ) == NULL)
+			{
+				printf("Cannot open %s.\n", filename1);
+			  //  result = FAIL;
+			}
+			else{
 
-				lab = atoi(token);
+				printf("File opened; ready to read.\n");
 
-				while(token!=NULL){
+				//printf("okk");
+				while(!feof(fp)){
+					i=0;
+				//	printf("okk");
+					if(fgets(buff, 2000 ,fp )!=NULL){
 
-					token = strtok(NULL, ",");
-					activation[i]= atof(token); // can use atof to convert to float
-    					i++;
+						token = strtok(buff,",");
+						//printf("%s\n",token);
+						++batch_size;
+						//printf("%s\n",token);
+							if(batch_size<=100){
+								//printf("%s\n",token);
+								//printf("\ninto if ");
+								//lab = atoi(token);
+								//printf("%d",lab);
+
+									while(token!=NULL){
+										activation[i]= atof(token); // can use atof to convert to float
+										token = strtok(NULL,",");
+										i++;
+									}
+									printf("value of i:%d\n",i);
+									std::vector<float> label = getlabelVector(activation[0]);
+							// feed forward
+									for (int j=0; j<A1.size();j++ )
+										A1[j]=activation[j+1];
+									z2=dot(L2W,A1,15,784,1)+L2B;
+									A2 = sigmoid(z2);
+									z3=dot(L3W,A2,10,15,1)+L3B;
+									A3 = sigmoid(z3);
+													// back propagation
+									d3 = (A3-label)*sigmoid_d(z3);
+									L3nb = d3 + L3nb;
+									L3nw = dot(d3,transpose(&A2[0],1,15),10,1,15) + L3nw; // gradiet discent
+									d2 = dot(transpose(&L3W[0],15,10),d3,15,10,1)*sigmoid_d(z2);
+									L2nb = d2 + L2nb;
+									L2nw = dot(d2,transpose(&A1[0],1,784),15,1,784) + L2nw ; //gradient discent
+							}
+							else{
+								printf("weights updated");
+								update_wandb(L3W,L3nw);
+								update_wandb(L3B,L3nb);
+								update_wandb(L2W,L2nw);
+								update_wandb(L2B,L2nb);
+								batch_size = 0;
+								continue;
+							}
+					}
+					printf("reading line and learning\n");
 				}
-				printf("value of i:%d\n",i);
+				printf("activations\n");
+				print(A3,10,1);
+			}
+
+
+			if ( (fp = fopen(filename2, "r") ) == NULL)
+				{
+					printf("Cannot open %s.\n", filename2);
+						  //  result = FAIL;
+				}
+				else{
+
+					printf("File opened; ready to read.\n");
+					while(!feof(fp)){
+						i=0;
+						if(fgets(buff, 2000 ,fp )!=NULL){
+
+							token = strtok(buff,",");
+						//	printf("%s\n",token);
+
+							//lab = atoi(token);
+
+							while(token!=NULL){
+								//printf("%s\n",token);
+								activation[i]= atof(token); // can use atof to convert to float
+								token = strtok(NULL, ",");
+								i++;
+							}
+							printf("value of i:%d\n",i);
+						 }
+						std::vector<float> label = getlabelVector(activation[0]);
+							// feed forward
+
+						for (int j=0; j<A1.size();j++ )
+							A1[j]=activation[j+1];
+
+						z2=dot(L2W,A1,15,784,1)+L2B;
+						A2 = sigmoid(z2);
+
+						z3=dot(L3W,A2,10,15,1)+L3B;
+						A3 = sigmoid(z3);
+
+
+						printf("\nprint results");
+						print(A3,10,1);
+					}
+
 
 				}
 
 
-	std::vector<float> label = getlabelVector(lab);
-
-
-	for (unsigned i = 0; i != 50; ++i) {
-
-		std::vector<float>   pred = sigmoid(dot(X, W, 4, 4, 1 ) );
-
-	         printf("into main 3");
-
-	         std::vector<float>       pred_error = Y - pred;
-
-	         std::vector<float>  pred_delta = pred_error * sigmoid_d(pred);
-
-	         printf("into main 4");
-
-	         std::vector<float>   W_delta = dot(transpose(&X[0],4,4), pred_delta, 4,4, 1); // calculates the weight updates
-
-	         W = W + W_delta;
-
-	        if (i == 49){
-	            print ( pred, 4, 1 );
-	        };
-	    };
-
-		}
-   }
 
 
 

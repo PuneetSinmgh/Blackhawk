@@ -21,7 +21,7 @@ int main(void) {
 	  char filename[] = "/home/puneet/Downloads/mnist_test_10.csv";
 	  int result = SUCCESS;
 	  char buff[2000];
-	  int activation[1000];
+	  float activation[1000];
 	  unsigned i=0;
 	  char * token;
 
@@ -46,9 +46,10 @@ int main(void) {
 
 	    		while(token!=NULL){
 
-	    			activation[i]= atoi(token);
 
+	    			activation[i]= atof(token);
 	    			token = strtok(NULL, ",");
+
 	    					i++;
 	    		}
 
